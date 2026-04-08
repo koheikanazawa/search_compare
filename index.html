@@ -700,11 +700,20 @@ function plotMapboxMarkers(results) {
   if (!results.length || !mapboxMap) return;
   results.forEach((r, i) => {
     const el = document.createElement('div');
-    Object.assign(el.style, { width: '24px', height: '24px', background: '#e74c3c', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', border: '2px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.4)', cursor: 'pointer' });
+    Object.assign(el.style, {
+      width: '24px', height: '24px', background: '#e74c3c', borderRadius: '50%',
+      color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: '10px', fontWeight: 'bold', border: '2px solid white',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.4)', cursor: 'pointer',
+    });
     el.textContent = String(i + 1);
-    mapboxMarkers.push(new mapboxgl.Marker({ element: el }).setLngLat([r.coordinates.longitude, r.coordinates.latitude])
-      .setPopup(new mapboxgl.Popup({ offset: 16 }).setHTML(`<b>${r.name}</b><br/><span style="font-size:11px">${r.full_address}</span>`))
-      .addTo(mapboxMap));
+    const marker = new mapboxgl.Marker({ element: el })
+      .setLngLat([r.coordinates.longitude, r.coordinates.latitude])
+      .setPopup(new mapboxgl.Popup({ offset: 16 })
+        .setHTML(`<b>${r.name}</b><br/><span style="font-size:11px">${r.full_address}</span>`))
+      .addTo(mapboxMap);
+    marker._customEl = el; // elへの参照を直接保持
+    mapboxMarkers.push(marker);
   });
 }
 
@@ -1245,7 +1254,7 @@ function highlightGoogleMarker(index) {
 function highlightMapboxMarker(index) {
   // 全マーカーを通常に戻す
   mapboxMarkers.forEach((m) => {
-    const el = m.getElement();
+    const el = m._customEl;
     if (el) Object.assign(el.style, {
       width: '24px', height: '24px',
       background: '#e74c3c',
@@ -1253,7 +1262,7 @@ function highlightMapboxMarker(index) {
     });
   });
   // 対象をハイライト
-  const el = mapboxMarkers[index]?.getElement();
+  const el = mapboxMarkers[index]?._customEl;
   if (el) {
     Object.assign(el.style, {
       width: '36px', height: '36px',
@@ -1263,7 +1272,6 @@ function highlightMapboxMarker(index) {
     highlightedMapboxMarker = index;
   }
 }
-
 // ============================================================
 // RESULTS
 // ============================================================
