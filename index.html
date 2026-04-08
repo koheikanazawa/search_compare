@@ -695,7 +695,24 @@ function renderGoogleResults(data) {
   if (data.error) { el.innerHTML = `<p class="status-msg status-error">${data.error}</p>`; countEl.textContent = ''; return; }
   if (!data.length) { el.innerHTML = `<p class="status-msg">No results</p>`; countEl.textContent = ''; return; }
   countEl.textContent = `${data.length} results`;
-  el.innerHTML = data.map((r, i) => `<div class="result-item"><div class="result-index google-index">${i+1}</div><div><div class="result-name">${r.name}</div><div class="result-address">${r.formatted_address}</div><div class="result-type">${r.types.join(', ')}</div></div></div>`).join('');
+  el.innerHTML = data.map((r, i) => `
+    <div class="result-item" style="cursor:pointer;"
+         data-lat="${r.geometry.location.lat}" data-lng="${r.geometry.location.lng}">
+      <div class="result-index google-index">${i+1}</div>
+      <div>
+        <div class="result-name">${r.name}</div>
+        <div class="result-address">${r.formatted_address}</div>
+        <div class="result-type">${r.types.join(', ')}</div>
+      </div>
+    </div>`).join('');
+
+  el.querySelectorAll('.result-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const lat = parseFloat(item.dataset.lat);
+      const lng = parseFloat(item.dataset.lng);
+      centerMapsTo(lat, lng);
+    });
+  });
 }
 
 function renderMapboxResults(data) {
@@ -703,7 +720,24 @@ function renderMapboxResults(data) {
   if (data.error) { el.innerHTML = `<p class="status-msg status-error">${data.error}</p>`; countEl.textContent = ''; return; }
   if (!data.length) { el.innerHTML = `<p class="status-msg">No results</p>`; countEl.textContent = ''; return; }
   countEl.textContent = `${data.length} results`;
-  el.innerHTML = data.map((r, i) => `<div class="result-item"><div class="result-index mapbox-index">${i+1}</div><div><div class="result-name">${r.name??''}</div><div class="result-address">${r.full_address??''}</div><div class="result-type">${[r.feature_type,...(r.poi_category??[])].filter(Boolean).join(' · ')}</div></div></div>`).join('');
+  el.innerHTML = data.map((r, i) => `
+    <div class="result-item" style="cursor:pointer;"
+         data-lat="${r.coordinates.latitude}" data-lng="${r.coordinates.longitude}">
+      <div class="result-index mapbox-index">${i+1}</div>
+      <div>
+        <div class="result-name">${r.name??''}</div>
+        <div class="result-address">${r.full_address??''}</div>
+        <div class="result-type">${[r.feature_type,...(r.poi_category??[])].filter(Boolean).join(' · ')}</div>
+      </div>
+    </div>`).join('');
+
+  el.querySelectorAll('.result-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const lat = parseFloat(item.dataset.lat);
+      const lng = parseFloat(item.dataset.lng);
+      centerMapsTo(lat, lng);
+    });
+  });
 }
 
 function setLoading(side) {
@@ -1007,6 +1041,14 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') document.querySelectorAll('.dialog-overlay.open').forEach(el => closeDialog(el.id));
 });
 
+// ============================================================
+// CENTER MAPS
+// ============================================================
+function centerMapsTo(lat, lng) {
+  if (googleMap) googleMap.setCenter({ lat, lng });
+  if (mapboxMap) mapboxMap.jumpTo({ center: [lng, lat] });
+}
+	
 // ============================================================
 // MAP SYNC
 // ============================================================
