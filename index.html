@@ -1252,16 +1252,21 @@ function highlightGoogleMarker(index) {
 }
 
 function highlightMapboxMarker(index) {
-  // 全マーカーを通常に戻す
+  console.log('highlight called', index);
+  console.log('mapboxMarkers length', mapboxMarkers.length);
+  console.log('target marker', mapboxMarkers[index]);
+  console.log('target el', mapboxMarkers[index]?._customEl);
+
   mapboxMarkers.forEach((m) => {
     const el = m._customEl;
+    console.log('each el', el);
     if (el) Object.assign(el.style, {
       width: '24px', height: '24px',
       background: '#e74c3c',
       fontSize: '10px',
     });
   });
-  // 対象をハイライト
+
   const el = mapboxMarkers[index]?._customEl;
   if (el) {
     Object.assign(el.style, {
