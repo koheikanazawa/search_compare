@@ -566,18 +566,35 @@ function initResizers() {
 // ============================================================
 let googleMap = null, googleMarkers = [], googleServiceReady = false, placesService = null;
 
+let googleMapsLoadPromise = null;
+
 function loadGoogleMaps() {
-  return new Promise((resolve, reject) => {
-    if (window.google?.maps) { resolve(); return; }
-    const savedDefine = window.define;
-    window.define = undefined;
+  if (googleMapsLoadPromise) return googleMapsLoadPromise;
+  if (window.google?.maps) return Promise.resolve();
+
+  googleMapsLoadPromise = new Promise((resolve, reject) => {
+    const savedDefine  = window.define;
+    const savedRequire = window.require;
+    window.define  = undefined;
+    window.require = undefined;
+
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
-    script.async = true;
-    script.onload = () => { window.define = savedDefine; resolve(); };
-    script.onerror = () => { window.define = savedDefine; reject(); };
+    script.src   = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
+    script.async  = true;
+    script.onload = () => {
+      window.define  = savedDefine;
+      window.require = savedRequire;
+      resolve();
+    };
+    script.onerror = () => {
+      window.define  = savedDefine;
+      window.require = savedRequire;
+      reject(new Error('Google Maps load failed'));
+    };
     document.head.appendChild(script);
   });
+
+  return googleMapsLoadPromise;
 }
 
 async function initGoogleMap() {
@@ -1259,12 +1276,15 @@ function startApp() {
   if (state.query) document.getElementById('query-input').value = state.query;
   updateModeBadge();
   initCSV();
-  initGoogleMap();
-  initMapboxMap();
-  initResizers();
-  updateBboxBtn();
-  setTimeout(() => initEditors(), 500);
-  if (state.query) doSearch();
+
+  loadGoogleMaps().then(() => {
+    initGoogleMap();
+    initMapboxMap();
+    initResizers();
+    updateBboxBtn();
+    setTimeout(() => initEditors(), 100);
+    if (state.query) doSearch();
+  });
 }
 
 // ============================================================
