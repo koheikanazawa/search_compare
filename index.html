@@ -723,13 +723,23 @@ function renderGoogleResults(data) {
       </div>
     </div>`).join('');
 
-  el.querySelectorAll('.result-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const lat = parseFloat(item.dataset.lat);
-      const lng = parseFloat(item.dataset.lng);
-      centerMapsTo(lat, lng);
-    });
-  });
+	el.querySelectorAll('.result-item').forEach((item, i) => {
+	  item.addEventListener('click', () => {
+	    const lat = parseFloat(item.dataset.lat);
+	    const lng = parseFloat(item.dataset.lng);
+	    centerMapsTo(lat, lng);
+	    highlightGoogleMarker(i); // Google側だけハイライト
+	  });
+	});
+
+	el.querySelectorAll('.result-item').forEach((item, i) => {
+	  item.addEventListener('click', () => {
+	    const lat = parseFloat(item.dataset.lat);
+	    const lng = parseFloat(item.dataset.lng);
+	    centerMapsTo(lat, lng);
+	    highlightMapboxMarker(i); // Mapbox側だけハイライト
+	  });
+	});
 }
 
 function renderMapboxResults(data) {
@@ -810,6 +820,8 @@ async function doSearch() {
   queryEditor?.setValue(googleDisplay); queryMapboxEditor?.setValue(mapboxDisplay);
 
   document.getElementById('query-google-label').textContent = `Google Places API (${googleApiMode === 'new' ? 'New' : 'Legacy'})`;
+  highlightedGoogleMarker = null;
+  highlightedMapboxMarker = null;
   setLoading('google'); setLoading('mapbox');
 
   const [gRes, mRes] = await Promise.allSettled([searchGoogle(query), searchMapbox(query)]);
@@ -1063,7 +1075,8 @@ document.addEventListener('keydown', (e) => {
 // ============================================================
 function centerMapsTo(lat, lng) {
   if (googleMap) googleMap.setCenter({ lat, lng });
-  if (mapboxMap) mapboxMap.jumpTo({ center: [lng, lat] });
+  if (googleMap) googleMap.setZoom(18);
+  if (mapboxMap) mapboxMap.jumpTo({ center: [lng, lat], zoom: 17 }); // Mapboxは-1オフセット
 }
 	
 // ============================================================
@@ -1179,6 +1192,50 @@ function toggleBbox() {
   writeToURL();
   drawMapboxBbox();
   updateBboxBtn();
+}
+
+// ============================================================
+// MARKER HIGHLIGHT
+// ============================================================
+let highlightedGoogleMarker = null;
+let highlightedMapboxMarker = null;
+
+function highlightGoogleMarker(index) {
+  // 既存ハイライトをリセット
+  if (highlightedGoogleMarker !== null && googleMarkers[highlightedGoogleMarker]) {
+    googleMarkers[highlightedGoogleMarker].setIcon({
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 8,
+      fillColor: '#1a73e8', fillOpacity: 1,
+      strokeColor: '#fff', strokeWeight: 2,
+    });
+  }
+  // 新しいマーカーをハイライト
+  if (googleMarkers[index]) {
+    googleMarkers[index].setIcon({
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 12, // 1.5倍
+      fillColor: '#f59e0b', fillOpacity: 1,
+      strokeColor: '#fff', strokeWeight: 2,
+    });
+    highlightedGoogleMarker = index;
+  }
+}
+
+function highlightMapboxMarker(index) {
+  // 既存ハイライトをリセット
+  if (highlightedMapboxMarker !== null) {
+    const prevEl = mapboxMarkers[highlightedMapboxMarker]?.getElement();
+    if (prevEl) {
+      Object.assign(prevEl.style, { width: '24px', height: '24px', background: '#e74c3c' });
+    }
+  }
+  // 新しいマーカーをハイライト
+  const el = mapboxMarkers[index]?.getElement();
+  if (el) {
+    Object.assign(el.style, { width: '36px', height: '36px', background: '#f59e0b' }); // 1.5倍
+    highlightedMapboxMarker = index;
+  }
 }
 
 // ============================================================
