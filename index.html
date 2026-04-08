@@ -612,10 +612,26 @@ async function initGoogleMap() {
 function plotGoogleMarkers(results) {
   googleMarkers.forEach(m => m.setMap(null)); googleMarkers = [];
   results.forEach((r, i) => {
-    googleMarkers.push(new google.maps.Marker({
+    const marker = new google.maps.Marker({
       position: { lat: r.geometry.location.lat, lng: r.geometry.location.lng },
-      map: googleMap, label: String(i + 1), title: r.name,
-    }));
+      map: googleMap,
+      title: r.name,
+      label: {
+        text: String(i + 1),
+        color: '#fff',
+        fontSize: '10px',
+        fontWeight: 'bold',
+      },
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 12,
+        fillColor: '#1a73e8',
+        fillOpacity: 1,
+        strokeColor: '#fff',
+        strokeWeight: 2,
+      },
+    });
+    googleMarkers.push(marker);
   });
 }
 
@@ -1201,39 +1217,49 @@ let highlightedGoogleMarker = null;
 let highlightedMapboxMarker = null;
 
 function highlightGoogleMarker(index) {
-  // 既存ハイライトをリセット
-  if (highlightedGoogleMarker !== null && googleMarkers[highlightedGoogleMarker]) {
-    googleMarkers[highlightedGoogleMarker].setIcon({
+  // 全マーカーを通常に戻す
+  googleMarkers.forEach((m, i) => {
+    m.setIcon({
       path: google.maps.SymbolPath.CIRCLE,
-      scale: 8,
-      fillColor: '#1a73e8', fillOpacity: 1,
-      strokeColor: '#fff', strokeWeight: 2,
+      scale: 12,
+      fillColor: '#1a73e8',
+      fillOpacity: 1,
+      strokeColor: '#fff',
+      strokeWeight: 2,
     });
-  }
-  // 新しいマーカーをハイライト
+  });
+  // 対象をハイライト
   if (googleMarkers[index]) {
     googleMarkers[index].setIcon({
       path: google.maps.SymbolPath.CIRCLE,
-      scale: 12, // 1.5倍
-      fillColor: '#f59e0b', fillOpacity: 1,
-      strokeColor: '#fff', strokeWeight: 2,
+      scale: 18,
+      fillColor: '#f59e0b',
+      fillOpacity: 1,
+      strokeColor: '#fff',
+      strokeWeight: 2,
     });
     highlightedGoogleMarker = index;
   }
 }
 
 function highlightMapboxMarker(index) {
-  // 既存ハイライトをリセット
-  if (highlightedMapboxMarker !== null) {
-    const prevEl = mapboxMarkers[highlightedMapboxMarker]?.getElement();
-    if (prevEl) {
-      Object.assign(prevEl.style, { width: '24px', height: '24px', background: '#e74c3c' });
-    }
-  }
-  // 新しいマーカーをハイライト
+  // 全マーカーを通常に戻す
+  mapboxMarkers.forEach((m) => {
+    const el = m.getElement();
+    if (el) Object.assign(el.style, {
+      width: '24px', height: '24px',
+      background: '#e74c3c',
+      fontSize: '10px',
+    });
+  });
+  // 対象をハイライト
   const el = mapboxMarkers[index]?.getElement();
   if (el) {
-    Object.assign(el.style, { width: '36px', height: '36px', background: '#f59e0b' }); // 1.5倍
+    Object.assign(el.style, {
+      width: '36px', height: '36px',
+      background: '#f59e0b',
+      fontSize: '13px',
+    });
     highlightedMapboxMarker = index;
   }
 }
