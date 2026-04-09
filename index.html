@@ -186,28 +186,23 @@
   <div id="csv-header">
     <span id="csv-toggle-icon">▶</span>
     <span id="csv-header-label">📂 CSV Test</span>
-    <div id="csv-controls" onclick="event.stopPropagation()">
-      <input type="file" id="csv-file-input" accept=".csv" style="display:none;" />
-      <button class="btn btn-secondary" id="csv-file-btn" style="font-size:11px;padding:4px 10px;">ファイル選択</button>
-      <button class="btn btn-secondary" id="csv-prev-btn" style="font-size:11px;padding:4px 10px;" disabled>◀ 前へ</button>
-      <button class="btn btn-secondary" id="csv-next-btn" style="font-size:11px;padding:4px 10px;" disabled>次へ ▶</button>
-      <span class="csv-progress" id="csv-progress"></span>
-    </div>
+		<div id="csv-controls" onclick="event.stopPropagation()">
+		  <input type="file" id="csv-file-input" accept=".csv" style="display:none;" />
+		  <button class="btn btn-secondary" id="csv-file-btn" style="font-size:11px;padding:4px 10px;">ファイル選択</button>
+		  <button class="btn btn-secondary" id="csv-prev-btn" style="font-size:11px;padding:4px 10px;" disabled>◀ 前へ</button>
+		  <button class="btn btn-secondary" id="csv-next-btn" style="font-size:11px;padding:4px 10px;" disabled>次へ ▶</button>
+		  <span class="csv-progress" id="csv-progress"></span>
+		  <!-- ジャンプUI追加 -->
+		  <span style="color:#555;font-size:10px;">Jump:</span>
+		  <input type="number" id="csv-jump-input" min="1" placeholder="行番号"
+		    style="width:70px;padding:4px 6px;background:#2a2a2a;border:1px solid #444;border-radius:3px;color:#fff;font-size:11px;outline:none;" />
+		  <button id="csv-jump-btn" class="btn btn-secondary" style="font-size:11px;padding:4px 8px;">Go</button>
+		  <span style="color:#555;font-size:10px;" id="csv-jump-hint"></span>
+		</div>
   </div>
   <div id="csv-body">
     <table id="csv-table">
 		<thead>
-		  <tr>
-		    <th colspan="4" style="padding:6px 12px;">
-		      <div style="display:flex;align-items:center;gap:6px;">
-		        <span style="color:#555;font-size:10px;">行ジャンプ:</span>
-		        <input type="number" id="csv-jump-input" min="1" placeholder="行番号"
-		          style="width:70px;padding:3px 6px;background:#2a2a2a;border:1px solid #444;border-radius:3px;color:#fff;font-size:11px;outline:none;" />
-		        <button id="csv-jump-btn" class="btn btn-secondary" style="font-size:10px;padding:2px 8px;">Go</button>
-		        <span style="color:#555;font-size:10px;margin-left:4px;" id="csv-jump-hint"></span>
-		      </div>
-		    </th>
-		  </tr>
 		  <tr>
 		    <th>#</th>
 		    <th>query_text</th>
