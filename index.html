@@ -783,14 +783,16 @@ function renderMapboxResults(data) {
         <div class="result-type">${[r.feature_type,...(r.poi_category??[])].filter(Boolean).join(' · ')}</div>
       </div>
     </div>`).join('');
-
-  el.querySelectorAll('.result-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const lat = parseFloat(item.dataset.lat);
-      const lng = parseFloat(item.dataset.lng);
-      centerMapsTo(lat, lng);
-    });
-  });
+	
+	el.querySelectorAll('.result-item').forEach((item, i) => {
+	  item.addEventListener('click', () => {
+	    console.log('mapbox click fired', i, mapboxMarkers.length);
+	    const lat = parseFloat(item.dataset.lat);
+	    const lng = parseFloat(item.dataset.lng);
+	    centerMapsTo(lat, lng);
+	    highlightMapboxMarker(i);
+	  });
+	});	
 }
 
 function setLoading(side) {
