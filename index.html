@@ -762,6 +762,7 @@ function renderGoogleResults(data) {
 	    const lat = parseFloat(item.dataset.lat);
 	    const lng = parseFloat(item.dataset.lng);
 	    centerMapsTo(lat, lng);
+		console.log('click fired', i, mapboxMarkers.length);
 	    highlightMapboxMarker(i); // Mapbox側だけハイライト
 	  });
 	});
