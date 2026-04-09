@@ -753,17 +753,7 @@ function renderGoogleResults(data) {
 	    const lat = parseFloat(item.dataset.lat);
 	    const lng = parseFloat(item.dataset.lng);
 	    centerMapsTo(lat, lng);
-	    highlightGoogleMarker(i); // Google側だけハイライト
-	  });
-	});
-
-	el.querySelectorAll('.result-item').forEach((item, i) => {
-	  item.addEventListener('click', () => {
-	    const lat = parseFloat(item.dataset.lat);
-	    const lng = parseFloat(item.dataset.lng);
-	    centerMapsTo(lat, lng);
-		console.log('click fired', i, mapboxMarkers.length);
-	    highlightMapboxMarker(i); // Mapbox側だけハイライト
+	    highlightGoogleMarker(i);
 	  });
 	});
 }
@@ -1102,9 +1092,11 @@ document.addEventListener('keydown', (e) => {
 // CENTER MAPS
 // ============================================================
 function centerMapsTo(lat, lng) {
+  isSyncing = true; // sync一時停止
   if (googleMap) googleMap.setCenter({ lat, lng });
-  //if (googleMap) googleMap.setZoom(18);
-  if (mapboxMap) mapboxMap.jumpTo({ center: [lng, lat], zoom: 17 }); // Mapboxは-1オフセット
+  if (mapboxMap) mapboxMap.jumpTo({ center: [lng, lat], zoom: 17 });
+  // 少し待ってからsync再開
+  setTimeout(() => { isSyncing = false; }, 300);
 }
 	
 // ============================================================
