@@ -1101,7 +1101,7 @@ document.addEventListener('keydown', (e) => {
 // ============================================================
 function centerMapsTo(lat, lng) {
   if (googleMap) googleMap.setCenter({ lat, lng });
-  if (googleMap) googleMap.setZoom(18);
+  //if (googleMap) googleMap.setZoom(18);
   if (mapboxMap) mapboxMap.jumpTo({ center: [lng, lat], zoom: 17 }); // Mapboxは-1オフセット
 }
 	
