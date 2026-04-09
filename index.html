@@ -1237,6 +1237,11 @@ function applyPoiDensity(density) {
       70, ['<', ['distance-from-center'], 3],
     ],
   ]);
+
+  const allowOverlap = density >= 3;
+  mapboxMap.setLayoutProperty('poi-label', 'text-allow-overlap', allowOverlap);
+  mapboxMap.setLayoutProperty('poi-label', 'icon-allow-overlap', allowOverlap);
+  mapboxMap.setLayoutProperty('poi-label', 'text-ignore-placement', allowOverlap);
 }
 	
 // ============================================================
