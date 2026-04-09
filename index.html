@@ -1221,22 +1221,21 @@ function applyPoiDensity(density) {
     return;
   }
 
-  const filterrankBase = [4, 6, 8, 10][density - 1];
-
-  mapboxMap.setFilter('poi-label', [
-    'all',
-    [
-      '<=',
-      ['get', 'filterrank'],
-      ['+', ['step', ['zoom'], 0, 16, 1, 17, 2], filterrankBase],
-    ],
-    [
-      'step', ['pitch'], true,
-      50, ['<', ['distance-from-center'], 2],
-      60, ['<', ['distance-from-center'], 2.5],
-      70, ['<', ['distance-from-center'], 3],
-    ],
-  ]);
+  try {
+    mapboxMap.setConfigProperty(
+      'point-of-interest-labels',
+      'density',
+      density
+    );
+  } catch (e) {
+    console.warn('setConfigProperty failed, trying setFilter:', e);
+    const filterrankBase = [4, 6, 8, 10][density - 1];
+    mapboxMap.setFilter('poi-label', [
+      'all',
+      ['<=', ['get', 'filterrank'], ['+', ['step', ['zoom'], 0, 16, 1, 17, 2], filterrankBase]],
+      ['step', ['pitch'], true, 50, ['<', ['distance-from-center'], 2], 60, ['<', ['distance-from-center'], 2.5], 70, ['<', ['distance-from-center'], 3]],
+    ]);
+  }
 }
 	
 // ============================================================
