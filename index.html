@@ -426,7 +426,9 @@ const DEFAULT_GOOGLE_PARAMS_LEGACY = {
 const DEFAULT_MAPBOX_PARAMS = {
   language: 'ja', country: 'jp',
   proximity: { lng: DEFAULT_LNG, lat: DEFAULT_LAT },
-  limit: 10, types: [],
+  limit: 10,
+  types: ['poi', 'address'],
+  routable_points: true,
   // bboxはデフォルトなし。BBOXボタンで有効化
 };
 
@@ -730,10 +732,15 @@ function plotMapboxMarkers(results) {
 
 async function searchMapbox(query) {
   const p = state.mapboxParams;
-  const params = new URLSearchParams({ q: query, language: p.language, country: p.country, limit: String(p.limit), access_token: MAPBOX_TOKEN });
+  const params = new URLSearchParams({
+    q: query, language: p.language, country: p.country,
+    limit: String(p.limit), access_token: MAPBOX_TOKEN,
+  });
   if (p.proximity) params.set('proximity', `${p.proximity.lng},${p.proximity.lat}`);
   if (p.types?.length > 0) params.set('types', p.types.join(','));
   if (Array.isArray(p.bbox) && p.bbox.length === 4) params.set('bbox', p.bbox.join(','));
+  if (p.routable_points) params.set('routable_points', 'true');
+
   const res = await fetch(`https://api.mapbox.com/search/searchbox/v1/forward?${params}`);
   if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
   const data = await res.json();
@@ -816,10 +823,14 @@ function buildGoogleQueryDisplay(query) {
 
 function buildMapboxQueryDisplay(query) {
   const p = state.mapboxParams;
-  const params = new URLSearchParams({ q: query, language: p.language, country: p.country, limit: String(p.limit), access_token: '****' });
+  const params = new URLSearchParams({
+    q: query, language: p.language, country: p.country,
+    limit: String(p.limit), access_token: '****',
+  });
   if (p.proximity) params.set('proximity', `${p.proximity.lng},${p.proximity.lat}`);
   if (p.types?.length > 0) params.set('types', p.types.join(','));
   if (Array.isArray(p.bbox) && p.bbox.length === 4) params.set('bbox', p.bbox.join(','));
+  if (p.routable_points) params.set('routable_points', 'true');
   return `GET https://api.mapbox.com/search/searchbox/v1/forward?${params.toString()}`;
 }
 
